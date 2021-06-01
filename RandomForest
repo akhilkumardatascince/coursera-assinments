@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jan 21 18:43:02 2019
+
+@author: Santhosh
+"""
+"""RANDOM FOREST FOR DIABETES DATASET
+Random forest analysis was performed to evaluate the importance of a 
+series of explanatory variables in predicting a binary, categorical response variable. 
+The following explanatory variables were included as possible contributors to a 
+random forest evaluating Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,
+DiabetesPedigreeFunction & Age.
+"""
+
+"""import all libraries used"""
+import pandas as pd
+import numpy as np
+import  seaborn as sns
+import matplotlib.pyplot as plt
+from pandas import Series, DataFrame
+import pandas as pd
+import numpy as np
+import os
+import matplotlib.pylab as plt
+from sklearn.cross_validation import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report
+import sklearn.metrics
+ # Feature Importance
+from sklearn import datasets
+from sklearn.ensemble import ExtraTreesClassifier
+
+data = pd.read_csv('C:\\Santhosh\\Data\\diabetes.csv')
+data.head(5)
+data.shape
+list(data.columns)
+
+#check for missing values
+data.isna().sum()
+#cleaning data if null values
+data_clean = data.dropna()
+
+#dividing independent and target varialbes
+X = data_clean.iloc[:, 0:-1]
+Y = data_clean.iloc[:, -1]
+
+#divide into training and validation dataset
+from sklearn.cross_validation import train_test_split
+Train_X, Test_X, Train_Y, Test_Y = train_test_split(X,Y, train_size= 0.7)
+
+
+
+#Build model on training data
+from sklearn.ensemble import RandomForestClassifier
+
+classifier=RandomForestClassifier(n_estimators=25)
+classifier=classifier.fit(Train_X,Train_Y)
+
+predictions=classifier.predict(Test_X)
+
+sklearn.metrics.confusion_matrix(Test_Y,predictions)
+"""
+array([[131,  25],
+       [ 25,  50]], dtype=int64)
+"""
+sklearn.metrics.accuracy_score(Test_Y, predictions)
+#0.7835497835497836
+
+Accurancy of Random Forest = 78.5%
+
+# fit an Extra Trees model to the data
+model = ExtraTreesClassifier()
+model.fit(Train_X,Train_Y)
+# display the relative importance of each attribute
+print(model.feature_importances_)
+#[0.11529349 0.24492738 0.09891448 0.0871488  0.06046185 0.13864495
+#0.11388957 0.14071948]
+
+#selecting number of trees
+
+
+trees=range(25)
+accuracy=np.zeros(25)
+
+for idx in range(len(trees)):
+   classifier=RandomForestClassifier(n_estimators=idx + 1)
+   classifier=classifier.fit(Train_X,Train_Y)
+   predictions=classifier.predict(Test_X)
+   accuracy[idx]=sklearn.metrics.accuracy_score(Test_Y, predictions)
+   
+plt.cla()
+plt.plot(trees, accuracy)
+
+
+
+"""
+RESULT AND SUMMARY """
+
+DIATABETES DATASET WAS ANALYSED AND PREDICTED THE OUTCOME OF DIABAETES PATEINTS.
+IT DEPENDS ON MULITPLLE FEATURES. - Pregnancies,Glucose, BloodPressure,
+ SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age. these are independent variables. outcome is dependent variable.
+ its a classification bussiness problem.
+ outcome is either 0 or 1.
+ 0 - not diabates patient
+ 1 - diabates patient.
+ datapreprocessing was done. data wangling and data cleaning.
+ try to preform EDA analysis. and tried to find which feature plays a major role in predecting outcome.
+ Randam forest algothrim was applied and results is summarised as stated above.
+ 
+ 

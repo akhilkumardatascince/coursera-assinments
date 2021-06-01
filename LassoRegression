@@ -1,0 +1,258 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jan 28 11:57:23 2019
+
+@author: Santhosh
+"""
+
+""" Importing all required libraries """
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import math as mt
+import stats as st
+from sklearn.cross_validation import train_test_split
+import statsmodels.api as sm
+from sklearn.linear_model import LassoLarsCV
+
+""" --------------------------------- """
+
+data = pd.read_csv('C:\\Santhosh\\DATA_SCIENCE\\Datasets\\Kaggle\\Admission Predict\\Admission_Predict_1.csv')
+data.shape #(500,9)
+list(data.columns)
+"""
+['Serial No.',
+ 'GRE Score',
+ 'TOEFL Score',
+ 'University Rating',
+ 'SOP',
+ 'LOR ',
+ 'CGPA',
+ 'Research',
+ 'Chance of Admit ']
+"""
+data.dtypes
+data.info() #memory usage: 35.2 KB
+
+data.isna().sum()
+#no missing values
+
+#independent valiable and dependent variable
+x = data[['GRE Score','TOEFL Score','University Rating','SOP','LOR ','CGPA','Research']]
+Y = data['Chance of Admit ']
+Y=data.drop(['Serial No.','GRE Score','TOEFL Score','University Rating','SOP','LOR ','CGPA','Research'], axis=1)
+
+
+
+#correlation between variables
+matrix = data.corr()
+f, ax = plt.subplots(figsize=(9, 7))
+sns.heatmap(matrix, vmax=1, square=True, cmap="BuPu", annot = True);
+
+np.corrcoef(x, Y)
+
+#diving the data into training and testing data set
+from sklearn.cross_validation import train_test_split
+train_x, test_x, train_Y, test_Y = train_test_split(x,Y, train_size=0.7)
+
+
+#box plot for all the varialbes to check outliers
+plt.boxplot(data['Serial No.']) #no need as it is sequence
+plt.boxplot(data['GRE Score'])
+plt.boxplot(data['TOEFL Score'])
+plt.boxplot(data['University Rating'])
+plt.boxplot(data['SOP'])
+plt.boxplot(data['LOR '])
+plt.boxplot(data['CGPA'])
+plt.boxplot(data['Research'])
+plt.boxplot(data['Chance of Admit '])  #dependent valiable
+#no outliers
+
+# check how features are related with label
+sns.scatterplot(data['GRE Score'],data['Chance of Admit ']) #linear
+sns.scatterplot(data['TOEFL Score'],data['Chance of Admit ']) #linear
+sns.scatterplot(data['University Rating'],data['Chance of Admit ']) # ######
+sns.scatterplot(data['SOP'],data['Chance of Admit ']) # #####
+sns.scatterplot(data['LOR '],data['Chance of Admit ']) # #####
+sns.scatterplot(data['CGPA'],data['Chance of Admit ']) #linear
+sns.scatterplot(data['Research'],data['Chance of Admit '])# ####
+sns.scatterplot(data['Chance of Admit '],data['Chance of Admit '])
+
+
+
+"""Normalise data"""
+def plotHistogram(input_):
+    plt.hist(input_['GRE Score'])
+    plt.hist(input_['TOEFL Score'])
+    plt.hist(input_['University Rating'])
+    plt.hist(input_['SOP'])
+    plt.hist(input_['LOR '])
+    plt.hist(input_['CGPA'])
+    plt.hist(input_['Research'])
+    plt.hist(input_['Chance of Admit '])
+    plt.figure()
+    plt.show()
+    
+    
+    
+"""plot histogram for all features"""    
+    def plotHistogram(input_):
+        plt.hist(data.iloc[:, 1])
+        plt.hist(data.iloc[:, 2])
+        plt.hist(data.iloc[:, 3])
+        plt.hist(data.iloc[:, 4])
+        plt.hist(data.iloc[:, 5])
+        plt.hist(data.iloc[:, 6])
+        plt.hist(data.iloc[:, 7])
+        plt.hist(data.iloc[:, 8])
+        return plt
+
+
+def plotHistogram(input_):
+    plt.figure(1)
+    plt.subplot(221)
+    plt.hist(data.iloc[:, 1])
+    plt.title(data.iloc[:, 1])
+    plt.subplot(222)
+    plt.hist(data.iloc[:, 2])
+    plt.title(data.iloc[:, 2])
+    plt.subplot(223)
+    plt.hist(data.iloc[:, 3])
+    plt.title(data.iloc[:, 3])
+    plt.subplot(224)
+    plt.hist(data.iloc[:, 4])
+    plt.title(data.iloc[:, 4])
+    plt.subplot(225)
+    plt.hist(data.iloc[:, 5])
+    plt.title(data.iloc[:, 5])
+    plt.subplot(226)
+    plt.hist(data.iloc[:, 6])
+    plt.title(data.iloc[:, 7])
+    plt.subplot(227)
+    plt.hist(data.iloc[:, 7])
+    plt.title(data.iloc[:, 7])
+    plt.subplot(228)
+    plt.hist(data.iloc[:, 8])
+    plt.title(data.iloc[:, 8])
+    plt.tight_layout()
+    plt.show()
+
+plotHistogram(data)
+
+"""check for normality of data"""
+    def checkNormalise(input_):
+        t=Table()
+        t['Features']=input_.columns
+        t['MEAN']=input_.mean()
+        t['MEDIAN']=input_.median()
+        df = pd.DataFrame(input_)
+        val=df.mode()
+        t['MODE']= pd.Series(val.iloc[0])
+        return t
+
+checkNormalise(data)
+plotHistogram(data)
+
+
+['Serial No.',
+ 'GRE Score',
+ 'TOEFL Score',
+ 'University Rating',
+ 'SOP',
+ 'LOR ',
+ 'CGPA',
+ 'Research',
+ 'Chance of Admit ']
+##standardize predictors to have mean=0 and sd=1
+data_copy=data.copy()
+from sklearn import preprocessing
+x['Serial No.']=preprocessing.scale(x['Serial No.'].astype('float64'))
+x['GRE Score']=preprocessing.scale(x['GRE Score'].astype('float64'))
+x['TOEFL Score']=preprocessing.scale(x['TOEFL Score'].astype('float64'))
+x['University Rating']=preprocessing.scale(x['University Rating'].astype('float64'))
+x['SOP']=preprocessing.scale(x['SOP'].astype('float64'))
+x['LOR ']=preprocessing.scale(x['LOR '].astype('float64'))
+x['CGPA']=preprocessing.scale(x['CGPA'].astype('float64'))
+x['Research']=preprocessing.scale(x['Research'].astype('float64'))
+
+
+plt.table
+"""Model Building"""
+from sklearn.linear_model import LassoLarsCV
+from sklearn.metrics import accuracy_score
+model=LassoLarsCV(cv=10, precompute=False).fit(train_x,train_Y)
+# print variable names and regression coefficients
+dict(zip(x.columns, model.coef_))
+"""
+{'GRE Score': 0.0009234316550247874,
+ 'TOEFL Score': 0.002743018720612819,
+ 'University Rating': 0.005407400618989292,
+ 'SOP': 9.721582315949333e-06,
+ 'LOR ': 0.02127124532238951,
+ 'CGPA': 0.1322646065572644,
+ 'Research': 0.02967611814420966}
+"""
+
+# plot coefficient progression
+m_log_alphas = -np.log10(model.alphas_)
+ax = plt.gca()
+plt.plot(m_log_alphas, model.coef_path_.T)
+plt.axvline(-np.log10(model.alpha_), linestyle='--', color='k',
+            label='alpha CV')
+plt.ylabel('Regression Coefficients')
+plt.xlabel('-log(alpha)')
+plt.title('Regression Coefficients Progression for Lasso Paths')
+
+
+# plot mean square error for each fold
+m_log_alphascv = -np.log10(model.cv_alphas_)
+plt.figure()
+plt.plot(m_log_alphascv, model.cv_mse_path_, ':')
+plt.plot(m_log_alphascv, model.cv_mse_path_.mean(axis=-1), 'k',
+         label='Average across the folds', linewidth=2)
+plt.axvline(-np.log10(model.alpha_), linestyle='--', color='k',
+            label='alpha CV')
+plt.legend()
+plt.xlabel('-log(alpha)')
+plt.ylabel('Mean squared error')
+plt.title('Mean squared error on each fold')
+
+
+# MSE from training and test data
+from sklearn.metrics import mean_squared_error
+train_error = mean_squared_error(train_Y, model.predict(train_x))
+test_error = mean_squared_error(test_Y, model.predict(test_x))
+print ('training data MSE')
+print(train_error)
+print ('test data MSE')
+print(test_error)
+"""
+training data MSE
+0.0037091601317559178
+test data MSE
+0.0033086786875457185
+"""
+
+# R-square from training and test data
+rsquared_train=model.score(train_x,train_Y)
+rsquared_test=model.score(test_x,test_Y)
+print ('training data R-square')
+print(rsquared_train)
+print ('test data R-square')
+print(rsquared_test)
+
+"""
+training data R-square
+0.8243477005783777
+test data R-square
+0.8053413072121675
+"""
+
+#K fold Validation
+import numpy as np
+from sklearn.model_selection import KFold
+
+kf = KFold(n_splits=2)
+for train, test in kf.split(x):
+    kfres=(train, test)
